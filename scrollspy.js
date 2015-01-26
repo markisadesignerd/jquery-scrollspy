@@ -35,15 +35,16 @@
 	function findElements(top, right, bottom, left) {
 		var hits = $();
 		$.each(elements, function(i, element) {
+            var elOffset = element.data('offset');
 			var elTop = element.offset().top,
 				elLeft = element.offset().left,
-				elRight = elLeft + element.width(),
-				elBottom = elTop + element.height();
+				elRight = elLeft + element.outerWidth(),
+				elBottom = elTop + element.outerHeight();
 
-			var isIntersect = !(elLeft > right ||
-				elRight < left ||
-				elTop > bottom ||
-				elBottom < top);
+			var isIntersect = !(elLeft > right + elOffset.right ||
+				elRight < left + elOffset.left ||
+				elTop > bottom + elOffset.bottom ||
+				elBottom < top + elOffset.top);
 
 			if (isIntersect) {
 				hits.push(element);
@@ -67,7 +68,8 @@
 			bottom = top + jWindow.height();
 
 		// determine which elements are in view
-		var intersections = findElements(top+offset.top, right+offset.right, bottom+offset.bottom, left+offset.left);
+		var intersections = findElements(top, right, bottom, left);
+
 		$.each(intersections, function(i, element) {
 			var lastTick = element.data('scrollSpy:ticks');
 			if (typeof lastTick != 'number') {
@@ -164,18 +166,30 @@
 	 * @returns {jQuery}
 	 */
 	$.scrollSpy = function(selector, options) {
-		selector = $(selector);
-		selector.each(function(i, element) {
-			elements.push($(element));
-		});
 		options = options || {
 			throttle: 100
 		};
+        selector = $(selector);
+        selector.each(function(i, element) {
+            var $element = $(element);
+            $element.data('offset', {
+                top: options.offsetTop || 0,
+                bottom: options.offsetBottom || 0,
+                left: options.offsetLeft || 0,
+                right: options.offsetRight || 0
+            });
 
+            elements.push($element);
+
+        });
+
+
+        /*
 		offset.top = options.offsetTop || 0;
 		offset.right = options.offsetRight || 0;
 		offset.bottom = options.offsetBottom || 0;
 		offset.left = options.offsetLeft || 0;
+        */
 
 		var throttledScroll = throttle(onScroll, options.throttle || 100);
 		var readyScroll = function(){

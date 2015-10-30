@@ -35,7 +35,7 @@
 	function findElements(top, right, bottom, left) {
 		var hits = $();
 		$.each(elements, function(i, element) {
-            var elOffset = element.data('offset');
+            	var elOffset = element.data('offset');
 			var elTop = element.offset().top,
 				elLeft = element.offset().left,
 				elRight = elLeft + element.outerWidth(),
@@ -43,8 +43,8 @@
 
 			var isIntersect = !(elLeft > right + elOffset.right ||
 				elRight < left + elOffset.left ||
-				elTop > bottom + elOffset.bottom ||
-				elBottom < top + elOffset.top);
+				elTop <= top + elOffset.top ||
+				elBottom >= bottom + elOffset.bottom);
 
 			if (isIntersect) {
 				hits.push(element);
